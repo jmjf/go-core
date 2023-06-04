@@ -1,0 +1,11 @@
+2022-09-16 12:04:10,257 - INFO - Connect to data sources
+2022-09-16 12:04:10,782 - WARNING - Connect to data source "pgdata" failed
+2022-09-16 12:04:11,004 - INFO - Retry connect to data source "pgdata"
+2022-09-16 12:04:12,227 - INFO - Connect to data source "pgdata" succeeded after 4 attempts
+2022-09-16 12:04:13,288 - INFO - TestApp listening on port 8095
+2022-09-16 12:06:47,904 - ERROR - No response from identity provider for user "joej"
+2022-09-16 12:06:10,178 - ERROR - No response from identity provider for user "janeb"
+2022-09-16 12:08:13,349 - ERROR - No response from identity provider for user "joej"
+2022-09-16 12:08:00,731 - ERROR - No response from identity provider for user "joej"
+2022-09-16 12:09:10,257 - INFO - User "maryl" logged in
+2022-09-16 12:11:10,866 - INFO - User "janeb" logged in
