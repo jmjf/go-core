@@ -1,18 +1,28 @@
 package main
 
+// This package is named main
+
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 )
 
-// This package is named main
-
 func main() {
+	// get parameters from the command line
+	// flag.String takes the name, default value and help text for the parameter
+	path := flag.String("path", "testapp.log", "Path to log file to read")
+	level := flag.String("level", "ERROR", "Log level to show. [DEBUG | INFO | WARNING | ERROR | CRITICAL]")
+
+	// parse the flags and get the values (or default)
+	flag.Parse()
+
 	// os.Open() will return either f (open file handle) or err (an error)
-	f, err := os.Open("testapp.log")
+	// path is a string pointer, so need to use *path
+	f, err := os.Open(*path)
 
 	// if we have an error (it isn't nil/null), log it and fail
 	if err != nil {
@@ -33,7 +43,8 @@ func main() {
 			break
 		}
 		// if the line is an error (contains 'ERROR'), print it
-		if strings.Contains(s, "ERROR") {
+		// level is a string pointer
+		if strings.Contains(s, *level) {
 			fmt.Println(s)
 		}
 	}
