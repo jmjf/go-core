@@ -27,6 +27,40 @@ In the devcontainer, the non-root default user (no password) is `dev` and `dev` 
 
 So, now my base environment should be set up. I'm writing this in the container, but it's immediately reflected in the hosting folder.
 
+## Note on compatibility
+
+**TL;DR:** Using VS Code and Docker snap packages seemed to cause issues, including failure to update to newer versions. Removing snaps and installing from apt repos solved the problems.
+
+I built the containers and repo on an Ubuntu 22.04 machine (bare metal). Later, I pulled the repo into an Ubuntu 22.04 VM on a Windows 10 machine (Virtual Box). VS Code tried to start the dev container and failed.
+
+* I could start `docker-compose.yml` with `docker compose` from the command line or VS Code terminal.
+* Running `docker ps` showed the containers up.
+* The Docker extension didn't complain about connecting to Docker, but did not see containers or images that `docker ps` and `docker image ls` showed.
+
+After reinstalling extensions, change various settings, etc., I was frustrated. So I did the following:
+
+* `snap list` -- both Docker and VS Code were installed from snap; noted that Docker was 20.x vs. 24.x (current as of this writing), VS Code version wasn't standard, so couldn't tell
+* `snap refresh` did not update Docker of VS Code versions.
+* Ran `snap remove code` to remove snap VS Code and ran `snap saved` and `snap forget <snapshot-number>` to remove the snapshot.
+* Removed and pruned all Docker containers, images and volumes.
+* Ran `snap remove docker` to remove snap Docker and removed the snapshot.
+* Added Docker and Microsoft apt repos and installed Docker and VS Code from them.
+  * [official Docker guide](https://docs.docker.com/engine/install/ubuntu/)
+  * [guide used for VS Code](https://itslinuxfoss.com/how-to-install-visual-studio-code-on-ubuntu-22-04/)
+* Started the containers with `docker compose` from the `.devcontainer` directory.
+* Started VS Code and installed the Docker extension.
+  * Could not connect to Docker (improvement over last time)
+  * Checked and saw it kept the old configuration settings that pointed the docker command to `/snap/bin/docker`
+  * Changed configuration to `/usr/bin/docker`
+  * Containers, images, etc., visible
+* Stopped the containers
+* Opened the folder in the container
+  * The container took a while to set up because it was installing VS Code server but it started eventually
+  * After starting, VS Code prompted to install `gopls`, which I allowed.
+* Repeated tests from previous section (go, adminer, postgres, git configuration) to verify it's all working as expected.
+
+TODO: Check the bare metal machine for snap vs. apt packages. (But I prefer apt repo packages anyway, so not going back.)
+
 ## Commit prefixes
 
 * FEAT: (new feature for the user, not a new feature for build script)
