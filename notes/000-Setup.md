@@ -70,3 +70,7 @@ TODO: Check the bare metal machine for snap vs. apt packages. (But I prefer apt 
 * REFACTOR: (refactoring production code, eg. renaming a variable)
 * TEST: (adding missing tests, refactoring tests; no production code change)
 * CHORE: (updating grunt tasks etc; no production code change)
+
+## Abbreviations
+
+* Ctrl -> controller, as the model-view-controller pattern
