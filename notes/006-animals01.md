@@ -1,4 +1,4 @@
-# Animal service
+# Animal service (v01)
 
 Let's build a simple service that returns animals.
 
