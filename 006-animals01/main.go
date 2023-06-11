@@ -2,49 +2,55 @@ package main
 
 // VS Code/gopls complains about modules not in workspace, but I'm ignoring it
 
-import "fmt"
+import (
+	"fmt"
 
-type animal struct {
-	Id         int
-	Family     string
-	Genus      string
-	Species    string
-	CommonName string
-}
+	"animals01/models" // the module is animals01, must be prefixed to avoid issues
+	// VS Code (gopls) may complain about the line above, but it works
+)
 
 func main() {
-	animals := []animal{
-		{
-			Id:         1,
-			Family:     "Canidae",
-			Genus:      "Canis",
-			Species:    "lupus",
-			CommonName: "Gray wolf",
-		},
-		{
-			Id:         2,
-			Family:     "Canidae",
-			Genus:      "Vulpes",
-			Species:    "vulpes",
-			CommonName: "Red fox",
-		},
-		{
-			Id:         3,
-			Family:     "Canidae",
-			Genus:      "Canis",
-			Species:    "familiaris",
-			CommonName: "Dog",
-		},
-		{
-			Id:         4,
-			Family:     "Canidae",
-			Genus:      "Canis",
-			Species:    "latrans",
-			CommonName: "Coyote",
-		},
+	animal := models.Animal{
+		Id:         2,
+		Family:     "Canidae",
+		Genus:      "Vulpes",
+		Species:    "vulpes",
+		CommonName: "Red fox",
 	}
+	fmt.Println(animal)
 
-	for _, a := range animals {
-		fmt.Println(a)
-	}
+	// animals := []models.Animal{
+	// 	{
+	// 		Id:         1,
+	// 		Family:     "Canidae",
+	// 		Genus:      "Canis",
+	// 		Species:    "lupus",
+	// 		CommonName: "Gray wolf",
+	// 	},
+	// 	{
+	// 		Id:         2,
+	// 		Family:     "Canidae",
+	// 		Genus:      "Vulpes",
+	// 		Species:    "vulpes",
+	// 		CommonName: "Red fox",
+	// 	},
+	// 	{
+	// 		Id:         3,
+	// 		Family:     "Canidae",
+	// 		Genus:      "Canis",
+	// 		Species:    "familiaris",
+	// 		CommonName: "Dog",
+	// 	},
+	// 	{
+	// 		Id:         4,
+	// 		Family:     "Canidae",
+	// 		Genus:      "Canis",
+	// 		Species:    "latrans",
+	// 		CommonName: "Coyote",
+	// 	},
+	// }
+
+	// for _, a := range animals {
+	// 	fmt.Println(a)
+	// }
 }
