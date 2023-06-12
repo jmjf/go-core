@@ -48,3 +48,15 @@ We can abbreviate when it makes sense, especially if we have conventions within 
 Beware of abbreviation terms that mean different things in different domains. For example, in the financial industry, "repo" means "repossession" in a loans context, but "repurchase agreement" in a financial markets/trading context. When those two contexts cross or come together in a system, data store or report, shorthand can be confusing or misleading to the tune of tens of millions of dollars.
 
 **COMMIT: FEAT: add the ServeHTTP method for the animal controller**
+
+## Add data to the controller struct
+
+The controller will handle resource requests for the whole collection of animals or a specific set of animals that meets query criteria. We'll use a regular expression to do that.
+
+Add a regular expression member to the controller `struct` to hold the regular expression for the id URL path.
+
+We need a constructor function for the controller (`NewAnimalController()`). The constructor returns `&animalController{<controller definition>}` and initializes the regular expression. The controller is created within the function, which creates a closure. The data isn't lost, it's promoted to higher scope, but every call creates a new one, so they don't overlap.
+
+[Golang Regexp syntax](https://github.com/google/re2/wiki/Syntax)
+
+**COMMIT: FEAT: add a constructor for the controller**
