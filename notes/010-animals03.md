@@ -47,4 +47,4 @@ For example, `FindAnimalById()` becomes
 
 **COMMIT: FEAT: add methods to model for basic CRUD operations**
 
-##
+**COMMIT: REFACTOR: use findAnimalById() to simplify CRUD functions**
