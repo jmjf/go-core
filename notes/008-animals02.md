@@ -55,8 +55,20 @@ The controller will handle resource requests for the whole collection of animals
 
 Add a regular expression member to the controller `struct` to hold the regular expression for the id URL path.
 
-We need a constructor function for the controller (`NewAnimalController()`). The constructor returns `&animalController{<controller definition>}` and initializes the regular expression. The controller is created within the function, which creates a closure. The data isn't lost, it's promoted to higher scope, but every call creates a new one, so they don't overlap.
+We need a constructor function for the controller (`newAnimalController()`). Lower case first letter means it isn't exported from the `controllers` package. The constructor returns `&animalController{<controller definition>}` and initializes the regular expression. The controller is created within the function, which creates a closure. The data isn't lost, it's promoted to higher scope, but every call creates a new one, so they don't overlap.
 
 [Golang Regexp syntax](https://github.com/google/re2/wiki/Syntax)
 
 **COMMIT: FEAT: add a constructor for the controller**
+
+## Interfaces
+
+We can look at [Golang http.Handler type docs](https://pkg.go.dev/net/http#Handler) to see an example of how golang uses interfaces. Notably, the interface spec has a method, `ServeHTTP(ResponseWriter, *Request)` -- which is the same signature we used for the controller's `ServeHTTP()`. So, our controller is a `Handler` and can receive and respond to a request. (Yes, that was intentional.)
+
+We need to create the controller (call the constructor) and register it as a handler. So, we'll add `registerControllers.go` to the `controllers` package and have it do that. (Based on not needing outside the packages, I renamed `NewAnimalController()` to `newAnimalController()`.)
+
+We register a controller with `http.Handle()` ([docs](https://pkg.go.dev/net/http#Handle)), which takes a URL path (`pattern`) and the handler. `http.Handle()` registers with the `DefaultServeMux` (HTTP request multiplexer), which is like a request router in Node and some other languages HTTP server packages. In golang, it's of type `ServeMux` ([docs](https://pkg.go.dev/net/http#ServeMux)).
+
+According to the docs, `ServeMux`, given `"/images/"` as a pattern will match both `/images/` and `/images` (will redirect the latter to the former) unless separate paths are registered. But another reference I'm using says to register both paths. For now, I've commented out the `/`-less path.
+
+**COMMIT: FEAT: add registerControllers()**

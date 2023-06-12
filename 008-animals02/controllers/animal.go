@@ -9,7 +9,7 @@ type animalController struct {
 	animalIdRegexp *regexp.Regexp
 }
 
-func NewAnimalController() *animalController {
+func newAnimalController() *animalController {
 	return &animalController{
 		animalIdRegexp: regexp.MustCompile(`^/animals/(\d+)/?`),
 	}
