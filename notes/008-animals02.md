@@ -72,3 +72,15 @@ We register a controller with `http.Handle()` ([docs](https://pkg.go.dev/net/htt
 According to the docs, `ServeMux`, given `"/images/"` as a pattern will match both `/images/` and `/images` (will redirect the latter to the former) unless separate paths are registered. But another reference I'm using says to register both paths. For now, I've commented out the `/`-less path.
 
 **COMMIT: FEAT: add registerControllers()**
+
+## Start the server
+
+Now it's time to pull it all together and start the server. Our controller returns a fixed string, but we can ensure everything is wired up right and go from there.
+
+In `main.go`, replace the code (`fmt.Println()` a fixed object). We need to register controllers from the controllers package and call `http.ListenAndServe()` ([docs](https://pkg.go.dev/net/http#ListenAndServe)). We can pass the port as the address to use localhost (`":9200"` in this case) and use the `DefaultServeMux` by passing `nil` as the handler.
+
+Now we can `go run main.go` and browse to `localhost:9200/animals`. We'll get the "Called the animal controller." message back. Note that the URL changes to `localhost:9200/animals/` with a trailing `/`. And `localhost:9200/animals/987` also works, so we don't need to register both routes (the docs were right).
+
+All the wiring is done. We can work on making the animal controller return animals next.
+
+**COMMIT: FEAT: add code to start the server**

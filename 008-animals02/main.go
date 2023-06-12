@@ -3,21 +3,16 @@ package main
 // VS Code/gopls complains about modules not in workspace, but I'm ignoring it
 
 import (
-	"fmt"
+	"net/http"
 
-	"animals02/models" // the module is animals01, must be prefixed to avoid issues
+	// the module is animals02, must be prefixed to avoid issues
+	"animals02/controllers"
 	// VS Code (gopls) may complain about the line above, but it works
 )
 
 func main() {
-	animal := models.Animal{
-		Id:         2,
-		Family:     "Canidae",
-		Genus:      "Vulpes",
-		Species:    "vulpes",
-		CommonName: "Red fox",
-	}
-	fmt.Println(animal)
+	controllers.RegisterControllers()
+	http.ListenAndServe(":9200", nil)
 
 	// animals := []models.Animal{
 	// 	{
