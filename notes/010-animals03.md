@@ -103,3 +103,13 @@ Testing with `curl` shows an issue. `/animals` returns "Moved Permanently" with 
 The advanced controller is working. Next I'll add the other action handlers and include them in the `switch`es.
 
 **COMMIT: FEAT: add action handlers and wire controller to respond to GET requests with and without an id**
+
+## Support POST, PUT, DELETE methods
+
+The `post()` function needs to convert the request body from JSON to an `Animal` (`parseRequest()`). If that succeeds, it calls `AddAnimal()` to add the animal. In the controller, we call `post()` from the "no id" branch of the `if`.
+
+The `put()` function also calls `parseRequest()`. `UpdateAnimal()` takes the animal, not the id, but `put()` should confirm the ids match.
+
+The `delete()` function uses the id only, so doesn't call `parseRequest()`. On success, we'll return a 204 (No Content) because we aren't describing status but succeeded.
+
+**COMMIT: FEAT: add actions for POST, PUT and DELETE**

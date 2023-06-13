@@ -46,35 +46,38 @@ func (animalCtrl animalController) parseRequest(request *http.Request) (models.A
 func (animalCtrl animalController) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	// does the request URL have an id?
 	if request.URL.Path == "/animals" || request.URL.Path == "/animals/" {
-		// request does not have an id -> getAll()
+
 		switch request.Method {
 		case http.MethodGet:
 			animalCtrl.getAll(response, request)
+		case http.MethodPost:
+			animalCtrl.post(response, request)
 		default:
 			response.WriteHeader(http.StatusNotImplemented)
 		}
+
 	} else {
 		// we have an id
-
-		// get the id using the regexp -- findStringSubmatch() returns a slice of matches
 		reMatches := animalCtrl.animalIdRegexp.FindStringSubmatch(request.URL.Path)
 		if len(reMatches) == 0 {
-			// no matches -- bad request because the required id value is missing or invalid (not a number)
-			response.WriteHeader(http.StatusBadRequest)
+			response.WriteHeader(http.StatusBadRequest) // malformed request because required id is missing
 		}
-		// convert the string to an integer
+
 		id, err := strconv.Atoi(reMatches[1])
 		if err != nil {
-			response.WriteHeader(http.StatusBadRequest)
+			response.WriteHeader(http.StatusBadRequest) // malformed request because id is not an int (invalid)
 		}
-		// should be get()
+
 		switch request.Method {
 		case http.MethodGet:
 			animalCtrl.get(id, response)
+		case http.MethodPut:
+			animalCtrl.put(id, response, request)
+		case http.MethodDelete:
+			animalCtrl.delete(id, response)
 		default:
 			response.WriteHeader(http.StatusNotImplemented)
 		}
-
 	}
 }
 
@@ -84,14 +87,68 @@ func (animalCtrl animalController) getAll(response http.ResponseWriter, request 
 }
 
 // animalController.get() gets an animal by id (from the request URL) and sends it to the caller as JSON.
-// if the id isn't found, it returns an internal server error (HTTP status 500)
+// If the id isn't found, it returns an internal server error (HTTP status 500).
 func (animalCtrl animalController) get(id int, response http.ResponseWriter) {
-	// get the animal by id
 	animal, err := models.GetAnimalById(id)
 	if err != nil {
-		// respond with an internal server error
 		response.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	sendResponseJSON(animal, response)
+}
+
+// animalController.post() adds an animal using the data in the request body and returns the animal
+// If the request body can't be parsed, it returns a bad request error (HTTP status 400).
+// If the add fails, it returns an internal server error.
+func (animalCtrl animalController) post(response http.ResponseWriter, request *http.Request) {
+	animal, err := animalCtrl.parseRequest(request)
+	if err != nil {
+		response.WriteHeader(http.StatusBadRequest) // cannot parse body, so it's malformed, missing or invalid
+		return
+	}
+
+	_, err = models.AddAnimal(animal)
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError) // add failed
+		return
+	}
+
+	sendResponseJSON(animal, response)
+}
+
+// animalController.put() updates an animal using the data in the request body and returns the animal.
+// If the request body can't be parsed, it returns a bad request error (HTTP status 400).
+// If the request body id doesn't match the id in the URL, it returns a bad request error.
+// If the update fails, it returns an internal server error.
+func (animalCtrl animalController) put(id int, response http.ResponseWriter, request *http.Request) {
+	animal, err := animalCtrl.parseRequest(request)
+	if err != nil {
+		response.WriteHeader(http.StatusBadRequest) // cannot parse body, so it's malformed, missing or invalid
+		return
+	}
+
+	if animal.Id != id {
+		response.WriteHeader(http.StatusBadRequest) // id on URL doesn't match id on body, so it's malformed
+		return
+	}
+
+	_, err = models.UpdateAnimal(animal)
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError) // update failed
+		return
+	}
+
+	sendResponseJSON(animal, response)
+}
+
+// animalController.delete() adds an animal using the data in the request body.
+// if the
+func (animalCtrl animalController) delete(id int, response http.ResponseWriter) {
+	err := models.DeleteAnimalById(id)
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError) // delete failed
+		return
+	}
+
+	response.WriteHeader(http.StatusNoContent) // 204 -> not supplying any information
 }
