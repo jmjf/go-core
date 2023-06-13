@@ -113,3 +113,50 @@ The `put()` function also calls `parseRequest()`. `UpdateAnimal()` takes the ani
 The `delete()` function uses the id only, so doesn't call `parseRequest()`. On success, we'll return a 204 (No Content) because we aren't describing status but succeeded.
 
 **COMMIT: FEAT: add actions for POST, PUT and DELETE**
+
+## Testing
+
+Let's test it. We'll need `curl` (or Insomnia or Postman or similar) to test the last three methods.
+
+Add an animal.
+
+```bash
+curl -v -X POST -d '{"Family": "Felidae", "Genus": "Panthera", "Species": "tigris", "CommonName": "Tiger"}' \
+-H "Content-Type: application/json" http://localhost:9200/animals
+```
+
+**Problem:** The response says Id is 0, but it's actually 5, so `post()` needs to return the animal we get back from `AddAnimal()`. (fixed)
+
+```bash
+curl -v -X POST -d '{"Id": 5, "Family": "Felidae", "Genus": "Panthera", "Species": "onca", "CommonName": "Jaguar"}' \
+-H "Content-Type: application/json" http://localhost:9200/animals
+```
+
+Returns 500 Internal Server Error (because it already exists)
+
+```bash
+curl -v -X PUT -d '{"Id": 5, "Family": "Felidae", "Genus": "Panthera", "Species": "onca", "CommonName": "Jaguar"}' \
+-H "Content-Type: application/json" http://localhost:9200/animals/5
+```
+
+Returns 501 Not Implemented. First because I had `-PUT-d`, then because the URL didn't have the id. After fixing the `curl`, it updated the animal.
+
+```bash
+curl -v -X DELETE http://localhost:9200/animals/5
+```
+
+Returns 204 No Content. Animal deleted.
+
+```bash
+curl -v -X GET http://localhost:9200/animals/5
+curl -v -X GET http://localhost:9200/animals/3
+curl -v -X GET http://localhost:9200/animals
+```
+
+**Problem:** `/animals/5` returns 500 Internal Server Error, but should return 404, I think. (fixed)
+`/animals/3` returns item 3.
+`/animals` and `/animals/` both return all animals.
+
+Based on tests, this works.
+
+**COMMIT: FIX: ensure POST returns the animal with the correct id; for GET return 404 if animal not found**

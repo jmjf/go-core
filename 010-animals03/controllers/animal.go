@@ -91,7 +91,7 @@ func (animalCtrl animalController) getAll(response http.ResponseWriter, request 
 func (animalCtrl animalController) get(id int, response http.ResponseWriter) {
 	animal, err := models.GetAnimalById(id)
 	if err != nil {
-		response.WriteHeader(http.StatusInternalServerError)
+		response.WriteHeader(http.StatusNotFound)
 		return
 	}
 	sendResponseJSON(animal, response)
@@ -107,7 +107,7 @@ func (animalCtrl animalController) post(response http.ResponseWriter, request *h
 		return
 	}
 
-	_, err = models.AddAnimal(animal)
+	animal, err = models.AddAnimal(animal)
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError) // add failed
 		return
