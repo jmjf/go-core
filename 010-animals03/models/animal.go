@@ -17,6 +17,41 @@ var (
 	nextId  = 1
 )
 
+func InitalizeAnimals() {
+	animals = []*Animal{
+		{
+			Id:         1,
+			Family:     "Canidae",
+			Genus:      "Canis",
+			Species:    "lupus",
+			CommonName: "Gray wolf",
+		},
+		{
+			Id:         2,
+			Family:     "Canidae",
+			Genus:      "Vulpes",
+			Species:    "vulpes",
+			CommonName: "Red fox",
+		},
+		{
+			Id:         3,
+			Family:     "Canidae",
+			Genus:      "Canis",
+			Species:    "familiaris",
+			CommonName: "Dog",
+		},
+		{
+			Id:         4,
+			Family:     "Canidae",
+			Genus:      "Canis",
+			Species:    "latrans",
+			CommonName: "Coyote",
+		},
+	}
+
+	nextId = 5
+}
+
 // GetAnimals gets all Animal instances.
 func GetAnimals() []*Animal {
 	return animals
