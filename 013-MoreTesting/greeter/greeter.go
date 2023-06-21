@@ -6,7 +6,7 @@ import "fmt"
 func Welcome(name string) string {
 	// Uncomment the lines below to get cover2.out and cover2.html
 	if name != "Dave" {
-		fmt.Println("I should not be executed in test")
+		fmt.Println("I should not be executed in test for Dave -", name)
 	}
 
 	return fmt.Sprintf("Welcome to golang, %v!\n", name)

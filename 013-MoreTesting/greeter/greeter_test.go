@@ -25,6 +25,27 @@ func TestWelcome(t *testing.T) {
 	}
 }
 
+func TestWelcomeTD(t *testing.T) {
+	testCases := []struct {
+		input  string
+		expect string
+	}{
+		{"Dave", "Welcome to golang, Dave!\n"},
+		{"Daisy", "Welcome to golang, Daisy!\n"},
+		{"FAIL", "This test will fail."},
+		{"", "Welcome to golang, !\n"},
+	}
+
+	for _, testCase := range testCases {
+		got := greeter.Welcome(testCase.input)
+		if got != testCase.expect {
+			t.Errorf("Input: %q", testCase.input)
+			t.Errorf("Expected %q", testCase.expect)
+			t.Errorf("Got: %q", got)
+		}
+	}
+}
+
 // func TestBuhbye(t *testing.T) {
 // 	name := "Dave"
 // 	expected := "Hasta la vista, Dave.\n"

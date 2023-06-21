@@ -113,3 +113,60 @@ I think the HTML outputs would get overwhelming for a large body of code, so is 
 The native test runner has the main features I might want for coverage reporting. Some of the results may be misleading and some of the output modes may be difficult to use in larger projects.
 
 **COMMIT:** TEST: try different test coverage features in the standard test runner
+
+## Table driven testing
+
+Table driven testing is common in golang. Table driven tests use a slice that define the test inputs and expected outputs. They give a capability similar to Jest's [`test.each()`](https://jestjs.io/docs/api#testeachtablename-fn-timeout). VS Code has a "build tests" feature that sets up to run table driven tests. See `TestWelcomeTD` in `013-MoreTesting/greeter_test.go` for an example.
+
+```golang
+// simple test cases might use a simple struct
+   testCases := []struct {
+      input string
+      expected string
+   }
+
+// but test cases can be as complex as needed
+// For example, assume we're returning a message and book recommendation based on country and age
+   testCases := []struct {
+      inputCountry string
+      inputAge int
+      expectedMessage string
+      expectedBookId int64
+   }
+
+// If the inputs or outputs are very complex, the struct might contain structs
+   testCases := []struct {
+      input: struct {
+         from: struct {
+            cityName string
+            stateCode string
+         }
+         stops: [] struct{
+            cityName: string
+            stateCode: string
+            budgetAmount: float32
+            daysToStay: int
+         }
+      },
+      output: struct {
+         stopRecommendations: []struct {
+            stop: struct {
+               cityName: string
+               stateCode: string
+            }
+            activities: []TouristActivity
+            hotels: []Hotel
+         }
+      }
+   }
+```
+
+When writing table driven tests, consider how repetitive your test is and how much overhead outputs that only appear in some cases appear. If I'm writing tests for a higher-level function that also exercises lower level functions, like the use case calling the repo, I may end up with a complex input or output structure that would be easier to understand if written as several different tests.
+
+In my experience, table driven tests are easier to read when only a few of the input values vary. For example, consider testing a use case that gets data from repoA (which may return not found) then gets data from repoB (which may return not found) then produces different outputs based on status values.
+
+* The "repoA not found" case doesn't need all the inputs for the remaining cases and has different outputs. Making it carry them makes test setup harder and less clear.
+* The "repoB not found" requires a "repoA found" setup, as do all the remaining tests, but doesn't need status inputs and has different outputs.
+* The status test cases can copy and change status on a common "found A" and "found B" result and expect similar outputs, so probably make sense for table driven testing. That may include status cases that return errors (adding an error to check for is just one field, not a structure).
+
+**COMMIT:** TEST: demonstrate table driven testing pattern
