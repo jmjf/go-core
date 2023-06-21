@@ -65,3 +65,5 @@ Continue testing (runs code in the test function after the fail):
 * `t.Errorf(format string, args ...interface{})` -- fail the test and print a formatted string
 
 **COMMIT:** TEST: show how "stop all" and "continue" functions above behave
+
+**COMMIT:** TEST: show how white box testing works
