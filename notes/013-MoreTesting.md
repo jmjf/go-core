@@ -170,3 +170,40 @@ In my experience, table driven tests are easier to read when only a few of the i
 * The status test cases can copy and change status on a common "found A" and "found B" result and expect similar outputs, so probably make sense for table driven testing. That may include status cases that return errors (adding an error to check for is just one field, not a structure).
 
 **COMMIT:** TEST: demonstrate table driven testing pattern
+
+## Other notes
+
+The `testing.T` object has `Log` and `Logf` methods write an output without indicating failure. (Example added to `greeter_test.go`, run with `go test`.)
+
+The `testing.T.Helper` function flags a function as "not the real test function" and causes reporting to go back to the first non-helper caller. So, if you have `AssertNil` that checks if a value is `nil` and calls `Errorf` if it isn't with an error message (consistent messaging is nice!), the test runner will report the error as happening in `AssertNil`. Add `t.Helper()` as the first line of `AssertNil` and the error will be tied to the caller.
+
+`Skip`, `Skipf`, and `SkipNow()` skip tests. (You might be able to do the same thing with a pattern name.)
+
+A good practice is to include a test name in the test case `struct` to make identifying test cases in output easier or to organize test suites. Use `Run` and the pattern below.
+
+```golang
+   for _, tc := range testCases {
+      t.Run(tc.name, func (t testing.T) {
+         // write test code here
+      })
+   }
+```
+
+`Parallel` lets us run tests in parallel. This is especially useful in table driven tests. Note that golang closures share the `for` variable, so we need a local copy to be in the closure for parallel safety.
+
+```golang
+for _, testCase := range testCases {
+  tc := testCase // required to ensure the test case is inside the closure
+    t.Run(tc.name, func(t *testing.T) {
+      t.Parallel()
+      // write test code here
+  })
+}
+```
+
+A couple of helpful references:
+
+* [Take Golang Testing Beyond the Basics](https://levelup.gitconnected.com/take-golang-testing-beyond-the-basics-960ae3705a76) (Medium, may paywall)
+* [Advanced Testing in Go](https://about.sourcegraph.com/blog/go/advanced-testing-in-go) (terser, covers more ground)
+
+**COMMIT:** DOCS: notes on other helpful functions; used Log/Logf to demonstrate

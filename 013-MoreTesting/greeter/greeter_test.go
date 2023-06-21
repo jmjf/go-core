@@ -39,9 +39,12 @@ func TestWelcomeTD(t *testing.T) {
 	for _, testCase := range testCases {
 		got := greeter.Welcome(testCase.input)
 		if got != testCase.expect {
+			t.Log("***** TEST FAILED")
 			t.Errorf("Input: %q", testCase.input)
 			t.Errorf("Expected %q", testCase.expect)
 			t.Errorf("Got: %q", got)
+		} else {
+			t.Logf("***** TEST PASSED for input %q", testCase.input)
 		}
 	}
 }
