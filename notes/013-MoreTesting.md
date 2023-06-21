@@ -67,3 +67,7 @@ Continue testing (runs code in the test function after the fail):
 **COMMIT:** TEST: show how "stop all" and "continue" functions above behave
 
 **COMMIT:** TEST: show how white box testing works
+
+If I change the package name to `greeter_test`, I'll get an error when calling methods from `greeter`. I need to import `moreTesting/greeter` and prefix calls with `greeter` (`greeter.Welcome()`). I can't call `greeter.buhbye()` because it isn't exported (is private) and I'm in a different package.
+
+**COMMIT:** TEST: show how black box testing works

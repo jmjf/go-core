@@ -1,6 +1,9 @@
-package greeter
+package greeter_test
 
-import "testing"
+import (
+	"moreTesting/greeter"
+	"testing"
+)
 
 // Time to create tests (white box)
 
@@ -10,7 +13,7 @@ func TestWelcome(t *testing.T) {
 	// I'm not using fmt.Sprintf here because testing by
 	// duplicating function logic is bad practice.
 	expected := "Welcome to golang, Dave!\n"
-	got := Welcome(name)
+	got := greeter.Welcome(name)
 
 	if got != expected {
 		// Using %q wraps the string in quotes and includes escaped characters,
@@ -22,13 +25,13 @@ func TestWelcome(t *testing.T) {
 	}
 }
 
-func TestBuhbye(t *testing.T) {
-	name := "Dave"
-	expected := "Hasta la vista, Dave.\n"
-	got := buhbye(name)
+// func TestBuhbye(t *testing.T) {
+// 	name := "Dave"
+// 	expected := "Hasta la vista, Dave.\n"
+// 	got := greeter.buhbye(name)
 
-	if got != expected {
-		t.Errorf("Expected: %v", expected)
-		t.Errorf("Got: %v", got)
-	}
-}
+// 	if got != expected {
+// 		t.Errorf("Expected: %v", expected)
+// 		t.Errorf("Got: %v", got)
+// 	}
+// }
