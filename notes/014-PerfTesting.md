@@ -90,3 +90,53 @@ Over 300,000 iterations per test sounds like a statistically valid sample size. 
 | Max-Min |  149   |  196   |
 
 **COMMIT:** TEST: write basic benchmark tests and see how they run
+
+## Application profiling
+
+We can profile several things about the application.
+
+* `-benchmem` -- memory allocation statistics
+* `-trace traceFileName` -- execution traces
+* `-<type>profile outFileName`
+  * `-blockprofile` -- goroutine blocking
+  * `-cpuprofile` -- cpu time
+  * `-memprofile` -- more detailed that `-benchmem`
+  * `-coverprofile` -- test coverage (text file; see `013-MoreTesting.md` notes on test coverage)
+  * `-mutexprofile` -- mutex contention
+
+The `-trace` and `<type>profile` options write binary files. Use `go tool pprof <filename>` which has a lot of options to analyze the file. Use `help` to see options`
+
+Run `go test -bench=. -benchmem` and get the following output (environment info snipped), which adds bytes allocated per operation and number of memory allocations per operation (how many variables, basically). Understanding memory allocation patterns can be significant when tuning high performance applications because allocs take time.
+
+```
+BenchmarkEncryptAES-4             445838              2746 ns/op             816 B/op          8 allocs/op
+BenchmarkEncryptRC4-4             258068              3887 ns/op            1392 B/op          2 allocs/op
+PASS
+ok      perfTest        3.307s
+```
+
+`go test -bench=. -memprofile mem.prof` then `go tool pprof mem.prof`.
+
+In pprof, run `svg` to get a graph. Requires Graphviz, so `sudo apt-get install graphviz`. The graph shows memory allocations by function, where size of the box is relative size vs. others for allocs within the function. In the example, several small-box functions allocate little or no memory. `rc4.NewCipher` is the biggest single allocator (~690MB). While `encryptRC4()` calls it, so is responsible for ~750MB of allocation, it only allocs ~128MB itself, so is smaller. The graph also shows percentages. ([Intepreting the Callgraph](https://github.com/google/pprof/blob/main/doc/README.md#interpreting-the-callgraph))
+
+Run `text` to get a table like below. The `flat` and `flat%` columns are local allocation, `cum` and `cum%` is total including called methods (example, `perfTest.encryptRC4` `cum` includes `crypto/rc4.NewCipher`) and `sum` is total percentage (so we see the two methods in `crypto` account for ~71% of all memory allocated).raw
+
+```
+Showing nodes accounting for 1269.81MB, 100% of 1269.81MB total
+Showing top 10 nodes out of 11
+      flat  flat%   sum%        cum   cum%
+  630.69MB 49.67% 49.67%   630.69MB 49.67%  crypto/rc4.NewCipher
+  281.54MB 22.17% 71.84%   281.54MB 22.17%  crypto/aes.newCipher
+  161.54MB 12.72% 84.56%   510.58MB 40.21%  perfTest.encryptAES
+  128.53MB 10.12% 94.68%   759.22MB 59.79%  perfTest.encryptRC4
+   67.50MB  5.32%   100%    67.50MB  5.32%  crypto/cipher.newCFB
+         0     0%   100%   281.54MB 22.17%  crypto/aes.NewCipher
+         0     0%   100%    67.50MB  5.32%  crypto/cipher.NewCFBEncrypter (inline)
+         0     0%   100%   510.58MB 40.21%  perfTest.BenchmarkEncryptAES
+         0     0%   100%   759.22MB 59.79%  perfTest.BenchmarkEncryptRC4
+         0     0%   100%  1269.81MB   100%  testing.(*B).launch
+```
+
+`go test -bench=. -cpuprofile cpu.prof` gives similar data for cpu time. Looking at this profile (text) we see `runtime.mallocgc` is the second largest total consumer of time (460ms), which points to memory allocation cost in time terms.
+
+**COMMIT:** TEST: collect and analyze performance testing statistics
