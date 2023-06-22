@@ -19,11 +19,11 @@
             "go.goroot": "/usr/local/go"
          },
          "extensions": [
-			"streetsidesoftware.code-spell-checker",
-			"eamodio.gitlens",
-			"DavidAnson.vscode-markdownlint",
-			"golang.go"
-		]
+            "streetsidesoftware.code-spell-checker",
+            "maattdd.gitless",
+            "DavidAnson.vscode-markdownlint",
+            "golang.go"
+         ]
       }
    },
    // Use 'forwardPorts' to make a list of ports inside the container available locally.
