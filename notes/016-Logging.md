@@ -27,7 +27,9 @@ For third party options, I looked at all the options listed at [Awesome Go](http
 * [zap](https://github.com/uber-go/zap)
 * [zerolog](https://github.com/rs/zerolog)
 
-(I'd like to try `apex/log` because TJ Holowaychuk built it, but the last commit is over a year old, so not an option.)
+I'd like to try `apex/log` because TJ Holowaychuk built it, but the last commit is from 2020, Apex's SSL cert has been revoked (site dead), and TJ hasn't done much on GitHub since 2020 (and by TJ's historical standards, 2020 was a slow year).
+
+`logrus` is in maintenance mode, meaning no new features, only security and bug fixes. (It points to the two Z-loggers above and `apex/log`, was put into maintenance in February 2020.) Even so, it's more forked and starred than either of the Z-loggers, so gets a look.
 
 I'll test the experimental `slog`, `logrus`, `zap`, and `zerolog`. Besides the main criteria defined above, my concerns are about how reasonable the logging code and output looks.
 
@@ -39,6 +41,48 @@ The basic test program is:
 
 * Create a logger that logs to stdout
 * Log an error
-* Log a struct
 * Log a struct with nested a nested struct, array, map
 * Log a message string with formatting (embedding values) plus specific values in fields
+
+I'll work in `016-Logging`. `main.go` will import from packages for each logger `logslog`, `loglogrus`, `logzap`, and `logzerolog`, which have specifics for each logger.
+
+## slog
+
+I used information from:
+
+* [Example from slog docs](https://pkg.go.dev/golang.org/x/exp/slog#example-package-Wrapping)
+* [Logging in Go with slog](https://thedevelopercafe.com/articles/logging-in-go-with-slog-a7bb489755c2)
+
+I need to `go get golang.org/x/exp/slog` to pull the experimental package. (After 1.21 releases, I should be able to import from `log/slog` with no `go get`.)
+
+In `logslog.go`, I'll build an example using `slog`.
+
+Printing a formatted line (third message) uses `fmt.Sprintf()` to format the string and key/value parameter pairs to include the values as logged fields (map, Code).
+
+Text output
+
+```
+time=2023-06-27T02:06:12.043Z level=ERROR source=/workspace/016-Logging/logslog.go:76 msg="Log an error" moduleName=logslog exampleInt=42 error="original err wrapped error"
+time=2023-06-27T02:06:12.044Z level=INFO source=/workspace/016-Logging/logslog.go:78 msg="Log a complex data structure" moduleName=logslog exampleInt=42 data="{FileName:main.go FunctionName:main LineNumber:32 Message:test log message Code:test ErrorData:{Name:Joe Stuff:{Line1:123 Elm St Line2:Apt 987} Arry:[2 42 32 1]} CanRetry:false OriginalError:original err wrapped error Amap:map[key1:3 key2:1 key32:98232]}"
+time=2023-06-27T02:06:12.044Z level=WARN source=/workspace/016-Logging/logslog.go:80 msg="Log format string map[string]int 32 test" moduleName=logslog exampleInt=42 map="map[key1:3 key2:1 key32:98232]" Code=test
+```
+
+JSON output
+
+```json
+{"time":"2023-06-27T02:05:39.80322462Z","level":"ERROR","source":{"function":"main.main","file":"/workspace/016-Logging/logslog.go","line":76},"msg":"Log an error","moduleName":"logslog","exampleInt":42,"error":"original err wrapped error"}
+{"time":"2023-06-27T02:05:39.803321469Z","level":"INFO","source":{"function":"main.main","file":"/workspace/016-Logging/logslog.go","line":78},"msg":"Log a complex data structure","moduleName":"logslog","exampleInt":42,"data":{"FileName":"main.go","FunctionName":"main","LineNumber":32,"Message":"test log message","Code":"test","ErrorData":{"Name":"Joe","Stuff":{"Line1":"123 Elm St","Line2":"Apt 987"},"Arry":[2,42,32,1]},"CanRetry":false,"OriginalError":{},"Amap":{"key1":3,"key2":1,"key32":98232}}}
+{"time":"2023-06-27T02:05:39.803397411Z","level":"WARN","source":{"function":"main.main","file":"/workspace/016-Logging/logslog.go","line":80},"msg":"Log format string map[string]int 32 test","moduleName":"logslog","exampleInt":42,"map":{"key1":3,"key2":1,"key32":98232},"Code":"test"}
+```
+
+I note that, by default, `slog` includes `source`, which refers to the log line. If logging happens removed from the source of data logged, `source` may be less valuable. To remove it, use `ReplaceAttr` and the example function in the code. Note that `ReplaceAttr` can remove or change other attributes. (An `Attr` has a `Key` and a `Value`)
+
+```json
+{"time":"2023-06-27T02:12:55.60012797Z","level":"ERROR","msg":"Log an error","moduleName":"logslog","exampleInt":42,"error":"original err wrapped error"}
+{"time":"2023-06-27T02:12:55.600225626Z","level":"INFO","msg":"Log a complex data structure","moduleName":"logslog","exampleInt":42,"data":{"FileName":"main.go","FunctionName":"main","LineNumber":32,"Message":"test log message","Code":"test","ErrorData":{"Name":"Joe","Stuff":{"Line1":"123 Elm St","Line2":"Apt 987"},"Arry":[2,42,32,1]},"CanRetry":false,"OriginalError":{},"Amap":{"key1":3,"key2":1,"key32":98232}}}
+{"time":"2023-06-27T02:12:55.600317891Z","level":"WARN","msg":"Log format string map[string]int 32 test","moduleName":"logslog","exampleInt":42,"map":{"key1":3,"key2":1,"key32":98232},"Code":"test"}
+```
+
+**COMMIT:** FEAT: demo slog logger
+
+## logrus
