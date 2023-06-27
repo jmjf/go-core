@@ -1,0 +1,10 @@
+mode: set
+perfTest/encrypt.go:20.54,22.16 2 1
+perfTest/encrypt.go:22.16,23.13 1 0
+perfTest/encrypt.go:26.2,28.56 3 1
+perfTest/encrypt.go:28.56,29.13 1 0
+perfTest/encrypt.go:32.2,34.19 3 1
+perfTest/encrypt.go:37.54,39.16 2 1
+perfTest/encrypt.go:39.16,40.13 1 0
+perfTest/encrypt.go:43.2,45.19 3 1
+perfTest/encrypt.go:48.13,51.2 2 0
