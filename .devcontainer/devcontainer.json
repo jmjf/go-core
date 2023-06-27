@@ -3,7 +3,10 @@
 {
    "name": "Go",
    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-   "dockerComposeFile": "docker-compose.yml",
+   "dockerComposeFile": [
+      "docker-compose.postgres.yml",
+      "docker-compose.golang.yml"
+   ],
    "service": "go-dev",
    "workspaceFolder": "/workspace",
    // Features to add to the dev container. More info: https://containers.dev/features.
@@ -19,11 +22,11 @@
             "go.goroot": "/usr/local/go"
          },
          "extensions": [
-			"streetsidesoftware.code-spell-checker",
-			"eamodio.gitlens",
-			"DavidAnson.vscode-markdownlint",
-			"golang.go"
-		]
+            "streetsidesoftware.code-spell-checker",
+            "maattdd.gitless",
+            "DavidAnson.vscode-markdownlint",
+            "golang.go"
+         ]
       }
    },
    // Use 'forwardPorts' to make a list of ports inside the container available locally.
