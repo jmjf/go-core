@@ -85,4 +85,8 @@ I note that, by default, `slog` includes `source`, which refers to the log line.
 
 **COMMIT:** FEAT: demo slog logger
 
+Preparing to test logrus, I moved the test data into a package (`testdata`) and changed `logslog.go` to use it.
+
+**COMMIT:** REFACTOR: move test data into a package so it's easier to share
+
 ## logrus
