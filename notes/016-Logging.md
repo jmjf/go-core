@@ -90,3 +90,23 @@ Preparing to test logrus, I moved the test data into a package (`testdata`) and 
 **COMMIT:** REFACTOR: move test data into a package so it's easier to share
 
 ## logrus
+
+[GitHub for logrus](https://github.com/sirupsen/logrus) -- has decent documentation.
+
+`go get github.com/sirupsen/logrus`
+
+I have a working version of it, but I see a few issues.
+
+* The syntax for logging individual fields feels clunkier than `slog`'s syntax.
+* No direct support for logging structs.
+  * I used a cheat (`Sprintf %+v`), but the output isn't JSON. I'd need to convert it to a map (for `Fields`) or JSON (for string).
+
+The JSON output indenter is nice for testing, but not something for production. JSON color coding would be a nice addition.
+
+The text logs are terse, IMO, but color coding makes them more readable.
+
+It's a tossup between `logrus` and `slog` right now.
+
+**COMMIT:** FEAT: add logrus logger example
+
+## zerolog

@@ -9,7 +9,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-func NewSlogLogger(useJson bool) *slog.Logger {
+func newLogger(useJson bool) *slog.Logger {
 	opts := slog.HandlerOptions{
 		AddSource: true,
 		Level:     slog.LevelInfo,
@@ -35,7 +35,7 @@ func NewSlogLogger(useJson bool) *slog.Logger {
 
 func main() {
 	// pass true for JSON, false for text
-	logger := NewSlogLogger(true)
+	logger := newLogger(true)
 
 	logger.Error("Log an error", "error", testdata.TStruct.OriginalError)
 
