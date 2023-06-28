@@ -3,7 +3,7 @@ package testdata
 import "fmt"
 
 type TestStruct struct {
-	FileName      string
+	FileName      string `json:"fileName"`
 	FunctionName  string
 	LineNumber    int
 	Message       string
@@ -20,9 +20,9 @@ type StuffType struct {
 }
 
 type TestErrData struct {
-	Name  string
-	Stuff StuffType
-	Arry  []int
+	Name  string    `json:"name"`
+	Stuff StuffType `json:"stuff"`
+	Arry  []int     `json:"arry"`
 }
 
 var TEData = TestErrData{

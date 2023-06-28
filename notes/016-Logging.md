@@ -110,3 +110,36 @@ It's a tossup between `logrus` and `slog` right now.
 **COMMIT:** FEAT: add logrus logger example
 
 ## zerolog
+
+[GitHub](https://github.com/rs/zerolog)
+[A Complete Guide to Logging with zerolog](https://betterstack.com/community/guides/logging/zerolog/)
+
+`go get -u github.com/rs/zerolog/log` -- `-u` updates modules providing dependencies
+
+Example JSON output. I added JSON tags for `fileName` and the members of `ErrorData` (but not members of `stuff`).
+
+```json
+{"level":"info","moduleName":"logzerolog","exampleInt":42,"data":{"fileName":"main.go","FunctionName":"main","LineNumber":32,"Message":"test log message","Code":"test","ErrorData":{"name":"Joe","stuff":{"Line1":"123 Elm St","Line2":"Apt 987"},"arry":[2,42,32,1]},"CanRetry":false,"OriginalError":{},"Amap":{"key1":3,"key2":1,"key32":98232}},"time":"2023-06-28T02:32:16Z","caller":"/workspace/016-Logging/logzerolog.go:40"}
+{"level":"error","moduleName":"logzerolog","exampleInt":42,"error":"original err wrapped error","time":"2023-06-28T02:32:16Z","caller":"/workspace/016-Logging/logzerolog.go:44","message":"Log an error "}
+{"level":"info","moduleName":"logzerolog","exampleInt":42,"data":{"fileName":"main.go","FunctionName":"main","LineNumber":32,"Message":"test log message","Code":"test","ErrorData":{"name":"Joe","stuff":{"Line1":"123 Elm St","Line2":"Apt 987"},"arry":[2,42,32,1]},"CanRetry":false,"OriginalError":{},"Amap":{"key1":3,"key2":1,"key32":98232}},"time":"2023-06-28T02:32:16Z","caller":"/workspace/016-Logging/logzerolog.go:48","message":"Log a complex data structure"}
+{"level":"warn","moduleName":"logzerolog","exampleInt":42,"map":{"key1":3,"key2":1,"key32":98232},"Code":"test","time":"2023-06-28T02:32:16Z","caller":"/workspace/016-Logging/logzerolog.go:53","message":"Log format string map[string]int 32 test"}
+```
+
+The JSON output looks as good as `slog`'s JSON. `zerolog` does require a lot of function chaining to add values into the log. I can see that as more work or more explicit than `slog`. I think the syntax is a tossup.
+
+Text output is okay. `zerolog` is JSON and CBOR focused, but text is comparable to `logrus`. On the console, it's color coded.
+
+```
+2:45AM INF logzerolog.go:39 > data={"Amap":{"key1":3,"key2":1,"key32":98232},"CanRetry":false,"Code":"test","ErrorData":{"arry":[2,42,32,1],"name":"Joe","stuff":{"Line1":"123 Elm St","Line2":"Apt 987"}},"FunctionName":"main","LineNumber":32,"Message":"test log message","OriginalError":{},"fileName":"main.go"} exampleInt=42 moduleName=logzerolog
+2:45AM ERR logzerolog.go:43 > Log an error  error="original err wrapped error" exampleInt=42 moduleName=logzerolog
+2:45AM INF logzerolog.go:47 > Log a complex data structure data={"Amap":{"key1":3,"key2":1,"key32":98232},"CanRetry":false,"Code":"test","ErrorData":{"arry":[2,42,32,1],"name":"Joe","stuff":{"Line1":"123 Elm St","Line2":"Apt 987"}},"FunctionName":"main","LineNumber":32,"Message":"test log message","OriginalError":{},"fileName":"main.go"} exampleInt=42 moduleName=logzerolog
+2:45AM WRN logzerolog.go:52 > Log format string map[string]int 32 test Code=test exampleInt=42 map={"key1":3,"key2":1,"key32":98232} moduleName=logzerolog
+```
+
+I think `zerolog` and `slog` are tied in terms of syntax and output. I'll need to do a feature comparison to see if there's notable difference.
+
+(Side note, I've been thinking, with a few tweaks to field names, I could probably feed the JSON logs from `slog` and `zerolog` into `pino-pretty` and get readable output.)
+
+**COMMIT:** FEAT: add zerolog logger example
+
+## zap
