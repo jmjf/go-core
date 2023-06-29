@@ -22,6 +22,9 @@ go.work
 
 # Other
 db
+node_modules
+*/package-lock.json
+# node_modules in 016-Logging where I tested pino-pretty
 
 # Built code
 001-logfilter01/logfilter01

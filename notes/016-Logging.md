@@ -143,3 +143,84 @@ I think `zerolog` and `slog` are tied in terms of syntax and output. I'll need t
 **COMMIT:** FEAT: add zerolog logger example
 
 ## zap
+
+[GitHub](https://github.com/uber-go/zap)
+[GoDocs - zap](https://pkg.go.dev/go.uber.org/zap)
+[GoDocs - zapcore](https://pkg.go.dev/go.uber.org/zap@v1.24.0/zapcore)
+
+`go get -u go.uber.org/zap`
+
+`zap` supports two ways of logging. The "sugared" logger offers a syntax similar to `slog` for a small performance penalty. The plain logger is faster and uses syntax similar to `zerolog`, but without function chaining or `zerolog`'s separate `Msg()`.
+
+```golang
+// zerolog
+
+ log.Error().
+  Err(testdata.TStruct.OriginalError).
+  Msg("Log an error ")
+
+// zap
+  log.Error("Log an error ", zap.Error(testdata.TStruct.OriginalError))
+```
+
+`zap` has three default configurations (Production, Development, Example) with a `Config` option for custom configuration. The `Config` type includes JSON and YAML tags to allow easy import from JSON or YAML data using Go's native marhalling functions.
+
+* Production writes `InfoLevel` and above JSON logs to stderr.
+* Development writes `DebugLevel` and above human-friendly logs to stderr.
+* Example writes `DebugLevel` and above JSON logs to stderr.
+
+I have a demo for both a plain logger and a sugared logger.
+
+I like the fact that `zap` natively supports ISO-8601 time formats (RFC3339 with ms). I can support that with other loggers by defining a custom time format, so it isn't a big deal, but it's nice nonetheless.
+
+The loggers include a `Sync` method, which flushes any buffered logs. Adding `defer logger.Sync()` after creating the logger in `main()` or similar seems to be a recommended practice. In my case, it's in the `testLogger` and `testSugar` functions because they create an use the logger and don't expose it.
+
+Console logs aren't color coded, but aren't much less readable than the other loggers that support a non-JSON option.
+
+JSON output sample:
+
+```json
+{"level":"info","time":"2023-06-29T01:42:49.230Z","caller":"016-Logging/logzap.go:87","msg":"","moduleName":"logzap","exampleInt":42,"data":{"fileName":"main.go","FunctionName":"main","LineNumber":32,"Message":"test log message","Code":"test","ErrorData":{"name":"Joe","stuff":{"Line1":"123 Elm St","Line2":"Apt 987"},"arry":[2,42,32,1]},"CanRetry":false,"OriginalError":{},"Amap":{"key1":3,"key2":1,"key32":98232}}}
+{"level":"error","time":"2023-06-29T01:42:49.230Z","caller":"016-Logging/logzap.go:91","msg":"Log an error ","moduleName":"logzap","exampleInt":42,"error":"original err wrapped error"}
+{"level":"info","time":"2023-06-29T01:42:49.230Z","caller":"016-Logging/logzap.go:95","msg":"Log a complex data structure","moduleName":"logzap","exampleInt":42,"data":{"fileName":"main.go","FunctionName":"main","LineNumber":32,"Message":"test log message","Code":"test","ErrorData":{"name":"Joe","stuff":{"Line1":"123 Elm St","Line2":"Apt 987"},"arry":[2,42,32,1]},"CanRetry":false,"OriginalError":{},"Amap":{"key1":3,"key2":1,"key32":98232}}}
+{"level":"warn","time":"2023-06-29T01:42:49.230Z","caller":"016-Logging/logzap.go:99","msg":"Log format string with Warnf map[string]int 32 test","moduleName":"logzap","exampleInt":42}
+{"level":"warn","time":"2023-06-29T01:42:49.230Z","caller":"016-Logging/logzap.go:101","msg":"Log format string with Warnw map[string]int 32 test","moduleName":"logzap","exampleInt":42,"map":{"key1":3,"key2":1,"key32":98232},"Code":"test"}
+```
+
+## Can I get pino-pretty to play nice with JSON logs?
+
+In Node-land, I use `pino` as a logger and [`pino-pretty`](https://github.com/pinojs/pino-pretty) in demos and run-it tests to get readable logs. `pino-pretty` wants a JSON structured log and formats based on certain-named fields. Specifically, it likes `time`, `pid`, `level`, and `msg`.
+
+By default, `pino` writes log level numbers, not strings, and `pino-pretty` interprets them. To get those from the Go loggers, I'd need a way to intercept the log line and add it. Let's see how far we can get anyway.
+
+Pino log levels map as shown below.
+
+```golang
+ levelMap := map[string]int{
+  "fatal": 60,
+  "error": 50,
+  "warn": 40,
+  "info": 30,
+  "debug": 20,
+  "trace": 10,
+ }
+```
+
+In `016-Logging` `npm init` to create `package.json`, then `npm install --save-dev pino-pretty`.
+
+`go run logzap.go | npx pino-pretty` -- except for the lack of log level that `pino-pretty` understands, it works okay.
+
+And if I remove my level rename and let it log as `level`, `pino-pretty` recognizes it and color codes it. And `slog` and `zerolog` work well with `pino-pretty` too. I'm seeing issues with `logrus`, though I'm not sure why yet. It already has a few strikes against it, so not worth solving.
+
+With `pino-pretty` making output easier to read, I'm seeing that `slog`, `zerolog` and `zap` all seem to miss the `error` in `TStruct`. The print `"OriginalError": {},`, instead of `OriginalError:original err wrapped error`. `logrus` does log the embedded error correctly, though that doesn't overcome the other issues. So, when logging `error`s, I need to be sure to pull it out of any objects that wrap it. With `zap`, if I went the `Object` route instead of the `Reflect` route, I could do that. (Based on what I'm seeing, I'm fairly certain reflection is the issue.)
+
+## Conclusion
+
+* `logrus` -- no longer actively developed (but still maintained)
+* `slog` -- part of the standard library; features are more limited than the next two
+* `zerolog` -- viable option
+* `zap` -- viable option
+
+At the moment, I'm on the fence between the last three. There's little to recommend one above the other except `slog`'s more limited feature set.
+
+**COMMIT:** FEAT: add zap logger example; test pino-pretty; summarize

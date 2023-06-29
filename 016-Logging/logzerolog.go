@@ -32,7 +32,7 @@ func newLogger(useJson bool) *zerolog.Logger {
 }
 
 func main() {
-	log := newLogger(false)
+	log := newLogger(true)
 
 	log.Info().
 		Interface("data", testdata.TStruct).
